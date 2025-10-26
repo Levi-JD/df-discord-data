@@ -1,0 +1,7 @@
+venv/
+__pycache__/
+*.pyc
+.env
+*sqlite3
+data.json
+DiamondFire-2025-10-25.html
