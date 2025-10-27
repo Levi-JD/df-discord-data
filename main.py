@@ -14,14 +14,17 @@ with open("data.json", "rb") as file:
         author = i.get("author")
         user_id = str(author.get("id"))
         name = author.get("name")
-        if user_id not in names:
-            names[user_id] = name
-        counts[user_id] += 1
-
+        if name != "Deleted User":
+                
+            if user_id not in names:
+                names[user_id] = name
+            counts[user_id] += 1
+        else:
+            print("deleted")
         if MAX_MESSAGES != None and seen >=MAX_MESSAGES:
             break
 
-top100 = counts.most_common(100)
+top100 = counts.most_common(1000)
 
 with open("example.txt", "a", encoding="utf-8") as f:
     for rank, (uid, cnt) in enumerate(top100, 1):
