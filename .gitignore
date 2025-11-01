@@ -10,3 +10,5 @@ example.txt
 example.txt
 word-search.py
 user_tokens_count.db
+*.sqlite
+*.jsonl
