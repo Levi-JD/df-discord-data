@@ -8,3 +8,7 @@ DiamondFire-2025-10-25.html
 example.txt
 .vscode
 example.txt
+word-search.py
+user_tokens_count.db
+*.sqlite
+*.jsonl
