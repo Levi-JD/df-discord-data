@@ -79,12 +79,14 @@ with open("tokens.jsonl", "a", encoding="utf-8") as f:
             user_id = str(author.get("id"))
             name = author.get("name")
             msg = i.get("content")
-
+            timestamp = i.get("timestamp")
             tokens = tokenize_msg(msg)
-            print(tokens)
+            #print(tokens)
 
-            json.dump({"tokens": tokens, "authid": user_id, "authname": name}, f, ensure_ascii=False)
+            json.dump({"tokens": tokens, "authid": user_id, "authname": name, "timestamp": timestamp}, f, ensure_ascii=False)
             f.write("\n")
 
             if MAX_MESSAGES != None and seen >=MAX_MESSAGES:
                 break
+            
+            print(seen)
