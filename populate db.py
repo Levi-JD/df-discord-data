@@ -29,6 +29,7 @@ with open("tokens.jsonl", "r", encoding="utf-8") as file:
         seen += 1
         author_id = obj["authid"]
         author_name = obj["authname"]
+        timestamp = obj["timestamp"]
         #print(author_id)
         #print(seen)
         cursor.execute("INSERT INTO users(id, user_name) VALUES (?, ?) ON CONFLICT (id) DO NOTHING", (author_id,author_name))
@@ -44,21 +45,21 @@ with open("tokens.jsonl", "r", encoding="utf-8") as file:
         
             tokenids[token] = token_id
 
-            buffer_counts[(author_id, token_id)] += 1
+            buffer_counts[(author_id, token_id, timestamp)] += 1
 
         if MAX_MESSAGES != None and seen >=MAX_MESSAGES:
             break
         
         if seen % BATCH_SIZE == 0:
             print(seen)
-            rows = [(a,b,c) for (a, b), c in buffer_counts.items()]
+            rows = [(a,b,c,d) for (a, b, c), d in buffer_counts.items()]
             buffer_counts.clear()
             #print(rows)
             executemany = """
 
-            INSERT INTO user_tokens_count(user_id, token_id, count)
-            VALUES (?, ?, ?)
-            ON CONFLICT(user_id, token_id)
+            INSERT INTO user_tokens_count(user_id, token_id, timestamp, count)
+            VALUES (?, ?, ?, ?)
+            ON CONFLICT(user_id, token_id, timestamp)
             DO UPDATE SET count = count + excluded.count
             """
             cursor.executemany(executemany, rows)

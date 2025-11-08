@@ -7,11 +7,11 @@ import re
 import json
 from collections import defaultdict
 
-with open("tokens.jsonl", "r", encoding="utf-8") as file:
-    for line in file:
-        obj = json.loads(line)
+with open("data.json", "rb") as file:
 
-        time = obj["timestamp"]
-        timestamp = int(datetime.fromisoformat(time).timestamp())
+    items = ijson.items(file, 'messages.item')
+
+    for i in items:
+        #timestamp = int(datetime.fromisoformat(i.get("timestamp")))
+        timestamp = int(datetime.fromisoformat(i.get("timestamp")).replace(hour=0, minute=0, second=0, microsecond=0).timestamp())
         print(timestamp)
-        

@@ -4,44 +4,11 @@ from collections import Counter
 import sqlite3
 import re
 import json
+from datetime import datetime
 MAX_MESSAGES = None
 counts = Counter()
 names = {}
 seen = 0
-
-def tokenize_no_regex(s: str, min_len: int = 1):
-    text = text or ""
-    out = []
-    for raw in text.split(): # splits on spaces, tabs, newlines
-        # skip Discord-style emoji tokens like :smile: or :custom_emoji:
-        if len(raw) >= 2 and raw[0] == ":" and raw[-1] == ":":
-            continue
-
-    # trim leading/trailing punctuation commonly glued to words
-    i, j = 0, len(raw)
-    def is_word_ch(c: str) -> bool:
-        return c.isalnum() or c == "_"
-
-    while i < j and not is_word_ch(raw[i]):
-        i += 1
-    while j > i and not is_word_ch(raw[j - 1]):
-        j -= 1
-
-        if i >= j:
-            continue
-
-    tok = raw[i:j].casefold()
-
-    # Optional: strip leftover trailing sentence punctuation one more time
-    tok = tok.rstrip(".!,?:;")
-
-    if len(tok) >= min_len:
-        out.append(tok)
-    
-    return out
-
-
-
 
 # One-pass cleanup pattern (codeblocks, inline code, <:emoji:id>, mentions, URLs, :emoji_name:)
 CLEANUP = re.compile(
@@ -79,7 +46,7 @@ with open("tokens.jsonl", "a", encoding="utf-8") as f:
             user_id = str(author.get("id"))
             name = author.get("name")
             msg = i.get("content")
-            timestamp = i.get("timestamp")
+            timestamp = int(datetime.fromisoformat(i.get("timestamp")).replace(hour=0, minute=0, second=0, microsecond=0).timestamp())
             tokens = tokenize_msg(msg)
             #print(tokens)
 
