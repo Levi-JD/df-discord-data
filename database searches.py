@@ -1,6 +1,20 @@
 # queries.py
 import sqlite3
 from datetime import datetime
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
+nltk.download('stopwords')
+nltk.download('punkt')
+
+# Sample text
+text = "This is a sample sentence showing stopword removal."
+
+# Get English stopwords and tokenize
+stop_words = set(stopwords.words('english'))
+placeholders = ",".join("?" for _ in stop_words)
+
 def top_tokens_overall(db_path="tokens.sqlite", limit=50):
     con = sqlite3.connect(db_path)
     cur = con.cursor()
@@ -64,18 +78,18 @@ def amount_said(db_path="tokens.sqlite", word="bla"):
     con.close()
     return rows
 
-def top_tokens_time_overall(db_path="tokens.sqlite", limit=10, start="2016-01-01T00:00:00", end="2026-01-01T00:00:00"):
+def top_tokens_time_overall(db_path="tokens.sqlite", limit=50, start="2016-01-01T00:00:00", end="2026-01-01T00:00:00"):
     con = sqlite3.connect(db_path)
     cur = con.cursor()
-    cur.execute("""
+    cur.execute(f"""
         SELECT t.token, SUM(utc.count) AS total
         FROM user_tokens_count AS utc
         JOIN tokens AS t ON t.id = utc.token_id
-        WHERE utc.timestamp BETWEEN ? AND ?
+        WHERE utc.timestamp BETWEEN ? AND ? AND t.token NOT IN ({placeholders})
         GROUP BY utc.token_id
         ORDER BY total DESC
         LIMIT ? 
-    """, (start, end, limit,))
+    """, (start, end, *stop_words, limit,))
     rows = cur.fetchall()
     con.close()
     return rows
@@ -85,13 +99,14 @@ if __name__ == "__main__":
     start = input("Start date: ")
     end = input("End: ")
 
-    start_date = int(datetime.fromisoformat(start+"T00:00:00").timestamp())
-    end_date = int(datetime.fromisoformat(end+"T00:00:00").timestamp())
+    if start != "" and end != "":
+        start_date = int(datetime.fromisoformat(start+"T00:00:00").timestamp())
+        end_date = int(datetime.fromisoformat(end+"T00:00:00").timestamp())
+        print(top_tokens_time_overall(start=start_date, end=end_date))
 
-    print(start_date)
-    print(end_date)
+    else:
+        print(top_tokens_time_overall())
 
-    print(top_tokens_time_overall(start=start_date, end=end_date))
 
     #word = input("Word: ").lower()
     #print("used", amount_said(word=word), " times")
