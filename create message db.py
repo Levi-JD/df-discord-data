@@ -1,6 +1,6 @@
 import sqlite3
 
-connection = sqlite3.connect("tokens.sqlite")
+connection = sqlite3.connect("messages.sqlite")
 cursor = connection.cursor()
 
 cursor.executescript("""
@@ -11,17 +11,27 @@ cursor.executescript("""
     """)
 
 create_table_query = """
+    CREATE TABLE IF NOT EXISTS users (
+        user_id INTEGER PRIMARY KEY,
+
+        name TEXT NOT NULL,
+        nick TEXT NOT NULL,
+        is_bot BOOLEAN 
+    );
+
     CREATE TABLE IF NOT EXISTS messages (
         msg_id INTEGER PRIMARY KEY,
+
+        author_id INTEGER NOT NULL,
+        type TEXT NOT NULL,
         message TEXT,
-        count INTEGER NOT NULL,
         timestamp INTEGER NOT NULL,
+
+        mentions TEXT,
+        FOREIGN KEY (author_id) REFERENCES users(user_id)
     );
     
-    CREATE INDEX IF NOT EXISTS idx_utc_time ON user_tokens_count(timestamp);
-    CREATE INDEX IF NOT EXISTS idx_tokens_token ON tokens(token);
-    CREATE INDEX IF NOT EXISTS idx_utc_user ON user_tokens_count(user_id);
-    CREATE INDEX IF NOT EXISTS idx_utc_token ON user_tokens_count(token_id);
+    CREATE INDEX IF NOT EXISTS idx_user ON messages(author_id);
 """
 cursor.executescript(create_table_query)
 
