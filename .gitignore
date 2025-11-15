@@ -12,3 +12,6 @@ word-search.py
 user_tokens_count.db
 *.sqlite
 *.jsonl
+output_trf
+*.spacy
+*.cfg
